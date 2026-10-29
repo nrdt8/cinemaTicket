@@ -1,0 +1,8 @@
+### Авторизация пользователя
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "cinema_user01",
+  "password": "MySecret123"
+}
