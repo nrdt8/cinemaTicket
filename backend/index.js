@@ -1,217 +1,92 @@
-
-require('dotenv').config();
-
 const express = require('express');
 const pool = require('./db');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
 
 const app = express();
-const PORT = 3001;
 
 app.use(express.json());
 
-// Проверка работы сервера
-app.get('/', (req, res) => {
-    res.send('CinemaTicket API работает');
-});
 
-// Регистрация
-app.post('/api/auth/register', async (req, res) => {
-    const { login, password } = req.body;
 
-    if (!login || !password) {
+
+
+
+app.post('/register', async (req, res) => {
+    const { first_name, last_name, login, password } = req.body;
+
+    if (
+        typeof first_name !== 'string' ||
+        typeof last_name !== 'string' ||
+        typeof login !== 'string' ||
+        typeof password !== 'string'
+    ) {
         return res.status(400).json({
-            message: 'Логин и пароль обязательны'
+            message: 'All fields must be strings'
         });
     }
 
     if (
-        typeof login !== 'string' ||
-        !/^[a-zA-Z0-9_-]{3,20}$/.test(login)
+        !first_name.trim() ||
+        !last_name.trim() ||
+        !login.trim() ||
+        !password.trim()
     ) {
         return res.status(400).json({
-            message: 'Логин должен содержать 3–20 символов: английские буквы, цифры, _ или -'
+            message: 'All fields are required'
         });
     }
 
-    if (typeof password !== 'string' || password.length < 8) {
+    if (!/^[a-zA-Z0-9_-]{3,20}$/.test(login)) {
         return res.status(400).json({
-            message: 'Пароль должен содержать минимум 8 символов'
+            message: 'Login must be 3–20 characters long and contain only English letters, digits, _ or -'
         });
     }
-
-    try {
-        const selectResult = await pool.query(
-            'SELECT user_id FROM users WHERE login = $1',
-            [login]
-        );
-
-        if (selectResult.rows.length > 0) {
-            return res.status(409).json({
-                message: 'Такой логин уже занят'
-            });
-        }
-
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        const insertResult = await pool.query(
-            `INSERT INTO users (login, password_hash, role_id)
-             VALUES ($1, $2, 1)
-                 RETURNING user_id, login, role_id, created_at`,
-            [login, passwordHash]
-        );
-
-        return res.status(201).json({
-            message: 'Регистрация успешна',
-            user: insertResult.rows[0]
-        });
-
-    } catch (err) {
-        console.error(err);
-
-        return res.status(500).json({
-            message: 'Внутренняя ошибка сервера'
-        });
-    }
-});
-
-// Вход
-app.post('/api/auth/login', async (req, res) => {
-    const { login, password } = req.body;
 
     if (
-        typeof login !== 'string' ||
-        typeof password !== 'string' ||
-        !login ||
-        !password
+        !/^[\p{L}'-]{2,50}$/u.test(first_name.trim()) ||
+        !/^[\p{L}'-]{2,50}$/u.test(last_name.trim())
     ) {
         return res.status(400).json({
-            message: 'Логин и пароль обязательны'
+            message: 'Names must contain 2–50 letters. Hyphens and apostrophes are allowed.'
+        });
+    }
+
+    if (!/^[\x21-\x7E]{8,72}$/.test(password)) {
+        return res.status(400).json({
+            message: 'Password must be 8–72 characters long and contain only English letters, numbers, and special characters.'
         });
     }
 
     try {
-        const result = await pool.query(
-            `SELECT user_id, login, password_hash, role_id
-             FROM users
-             WHERE login = $1`,
+
+        const checkLogin = await pool.query(
+            "SELECT * FROM users WHERE login = $1",
             [login]
-        );
+        )
 
-        if (result.rows.length === 0) {
-            return res.status(401).json({
-                message: 'Неверный логин или пароль'
-            });
+        if(checkLogin.rows.length > 0){
+            return res.status(400).send({error: 'This login is already taken'});
         }
 
-        const user = result.rows[0];
+        const password_hash = bcrypt.hashSync(password, 12);
 
-        const isPasswordValid = await bcrypt.compare(
-            password,
-            user.password_hash
-        );
+        const insertUsers = await pool.query(
+            `INSERT INTO users (first_name, last_name, login, password_hash, role_id)
+            VALUES ($1, $2, $3, $4, 1)
+                RETURNING (id, first_name, last_name, login, role_id, created_at)`,
+            [first_name, last_name, login, password_hash]
+        )
 
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                message: 'Неверный логин или пароль'
-            });
-        }
+        return res.status(201).send({
+            status: 201,
+            data: insertUsers.rows[0],
+        })
 
-        if (!process.env.JWT_SECRET) {
-            throw new Error('JWT_SECRET не задан в .env');
-        }
+    } catch (error) {
+        console.error(error);
 
-        // Создаём токен на 2 часа
-        const token = jwt.sign(
-            {
-                user_id: user.user_id,
-                role_id: user.role_id
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: '2h'
-            }
-        );
-
-        return res.status(200).json({
-            message: 'Вход выполнен успешно',
-            token: token,
-            user: {
-                user_id: user.user_id,
-                login: user.login,
-                role_id: user.role_id
-            }
-        });
-
-    } catch (err) {
-        console.error(err);
-
-        return res.status(500).json({
-            message: 'Внутренняя ошибка сервера'
-        });
+        res.status(500).send({error: error.message});
     }
-});
+})
 
-// Проверка токена пользователя
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).json({
-            message: 'Требуется авторизация'
-        });
-    }
-
-    if (!process.env.JWT_SECRET) {
-        return res.status(500).json({
-            message: 'Сервер не настроен для проверки токенов'
-        });
-    }
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, decodedUser) => {
-        if (err) {
-            return res.status(403).json({
-                message: 'Недействительный или просроченный токен'
-            });
-        }
-
-        req.user = decodedUser;
-        next();
-    });
-}
-
-// Получение профиля авторизованного пользователя
-app.get('/api/auth/me', authenticateToken, async (req, res) => {
-    try {
-        const result = await pool.query(
-            `SELECT user_id, login, role_id, created_at
-             FROM users
-             WHERE user_id = $1`,
-            [req.user.user_id]
-        );
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                message: 'Пользователь не найден'
-            });
-        }
-
-        return res.status(200).json({
-            user: result.rows[0]
-        });
-
-    } catch (err) {
-        console.error(err);
-
-        return res.status(500).json({
-            message: 'Внутренняя ошибка сервера'
-        });
-    }
-});
-
-// Запуск сервера
-app.listen(PORT, () => {
-    console.log(`CinemaTicket API работает на порту ${PORT}`);
-});
+app.listen(3000);
