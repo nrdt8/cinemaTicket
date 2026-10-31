@@ -1,15 +1,11 @@
 const express = require('express');
 const pool = require('./db');
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
 app.use(express.json());
-
-
-
-
-
 
 app.post('/register', async (req, res) => {
     const { first_name, last_name, login, password } = req.body;
@@ -73,7 +69,7 @@ app.post('/register', async (req, res) => {
         const insertUsers = await pool.query(
             `INSERT INTO users (first_name, last_name, login, password_hash, role_id)
             VALUES ($1, $2, $3, $4, 1)
-                RETURNING (id, first_name, last_name, login, role_id, created_at)`,
+                RETURNING id, first_name, last_name, login, role_id, created_at`,
             [first_name, last_name, login, password_hash]
         )
 
@@ -88,5 +84,119 @@ app.post('/register', async (req, res) => {
         res.status(500).send({error: error.message});
     }
 })
+
+app.post('/login', async (req, res) => {
+    const { login, password } = req.body;
+
+    if (typeof login !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({
+            message: 'All fields must be strings'
+        });
+    }
+
+    if (!login.trim() || !password.trim()) {
+        return res.status(400).json({
+            message: 'All fields are required'
+        });
+    }
+
+    try {
+        const checkLogin = await pool.query(
+            `SELECT * FROM users WHERE login = $1`,
+            [login]
+        )
+
+        if (checkLogin.rows.length === 0){
+            return res.status(400).send({
+                message: 'Login not found'
+            })
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, checkLogin.rows[0].password_hash);
+
+        if (!isPasswordValid) {
+            return res.status(400).send({
+                message: 'Passwords do not match'
+            })
+        }
+
+        const token = jwt.sign(
+            {
+                id: checkLogin.rows[0].id,
+                role_id: checkLogin.rows[0].role_id
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: '30d'
+            }
+        )
+
+        const user = checkLogin.rows[0]
+
+        return res.status(200).send({
+            status: 200,
+            data: {
+                id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                login: user.login,
+                role_id: user.role_id,
+                created_at: user.created_at
+            },
+            token: token
+        })
+
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).send({error: error.message});
+    }
+});
+
+app.get('/profile', async (req, res) => {
+    const authorization = req.headers.authorization;
+
+    const token = authorization.split(' ')[1]
+
+    try {
+
+        const result = jwt.verify(
+            token,
+            process.env.JWT_SECRET,
+        )
+
+        return res.status(200).send({
+            message: result,
+        })
+    } catch (error) {
+        return res.status(500).send({error: error.message});
+    }
+})
+
+function authMiddleware (req, res, next) {
+    const authorization = req.headers.authorization;
+
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+        return res.status(401).send({
+            message: 'Invalid authorization header'
+        })
+    }
+
+    const token = authorization.split(' ')[1]
+
+    try {
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET,
+        )
+
+        return decoded
+    } catch (err) {
+        return res.status(401).send({
+            "message": "Unauthorized",
+        })
+    }
+}
 
 app.listen(3000);
