@@ -174,6 +174,10 @@ app.get('/profile', async (req, res) => {
     }
 })
 
+console.log('hello')
+console.log('hello')
+
+
 function authMiddleware (req, res, next) {
     const authorization = req.headers.authorization;
 
