@@ -79,9 +79,7 @@ app.post('/register', async (req, res) => {
         })
 
     } catch (error) {
-        console.error(error);
-
-        res.status(500).send({error: error.message});
+        res.status(500).send({error: "server connection issues"});
     }
 })
 
@@ -148,33 +146,38 @@ app.post('/login', async (req, res) => {
 
 
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).send({error: error.message});
+        return res.status(500).send({error: "server connection issues"});
     }
 });
 
-app.get('/profile', async (req, res) => {
-    const authorization = req.headers.authorization;
-
-    const token = authorization.split(' ')[1]
-
+app.get('/profile', authMiddleware, async (req, res) => {
     try {
 
-        const result = jwt.verify(
-            token,
-            process.env.JWT_SECRET,
+        if (!process.env.JWT_SECRET) {
+            return res.status(400).send({
+                message: 'jwt secret is required'
+            })
+        }
+
+        const selectProfile = await pool.query(
+            `SELECT id, first_name, last_name, login, role_id, created_at FROM users WHERE id = $1`,
+            [req.user]
         )
 
-        return res.status(200).send({
-            message: result,
+        if (selectProfile.rows.length === 0){
+            return res.status(400).send({
+                message: 'Profile not found'
+            })
+        }
+
+        res.status(200).send({
+            status: 200,
+            data: selectProfile.rows[0]
         })
     } catch (error) {
-        return res.status(500).send({error: error.message});
+        res.status(500).send({error: "server connection issues"});
     }
 })
-
-
 
 function authMiddleware (req, res, next) {
     const authorization = req.headers.authorization;
@@ -193,7 +196,9 @@ function authMiddleware (req, res, next) {
             process.env.JWT_SECRET,
         )
 
-        return decoded
+        req.user = decoded.id
+
+        next()
     } catch (err) {
         return res.status(401).send({
             "message": "Unauthorized",
