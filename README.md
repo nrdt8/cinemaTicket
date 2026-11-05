@@ -1,2 +1,2 @@
-# ...hjrogls'epre
+# кчау
 ![кчау](docs/pic/win.gif)
