@@ -1,9 +1,13 @@
+import './App.css'
+
+import SessionCard from './components/ui/SessionCard/SessionCard.jsx'
+
 function App() {
   return (
-      <div>
-        
-      </div>
-  );
+    <>
+      <SessionCard></SessionCard>
+    </>
+  )
 }
 
-export default App;
+export default App
