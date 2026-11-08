@@ -17,7 +17,6 @@ const SessionCard = () => {
 
                 <div className="session-card_time-end">
                     13:04
-
                 </div>
             </div>
         </div>

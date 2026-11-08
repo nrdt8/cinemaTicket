@@ -1,0 +1,13 @@
+@use './variables' as *;
+
+body {
+  font-family: $font-main;
+  background-color: #090A0C;
+  color: $color-white;
+}
+
+h1,
+h2,
+h3 {
+  font-family: $font-heading;
+}
