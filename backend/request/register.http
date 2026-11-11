@@ -1,9 +1,9 @@
-POST http://localhost:3000/register
+POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-  "first_name": "Amir",
+  "first_name": "Amira",
   "last_name": "Mansurov",
-  "login": "nrdt123",
+  "login": "nrdt15455112",
   "password": "12345678"
 }

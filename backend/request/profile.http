@@ -1,2 +1,3 @@
-GET http://localhost:3000/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZV9pZCI6MSwiaWF0IjoxNzkzNDQ4NTQ3LCJleHAiOjE3OTYwNDA1NDd9.qcz_58KRDOW0QQgsSpvuQuGuaTMinbz1ktwVICTVQsY
+GET http://localhost:3000/api/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZV9pZCI6MSwiaWF0IjoxNzk0NDAzMjExLCJleHAiOjE3OTY5OTUyMTF9.8k453eXKMDVis8ZFEhBlz1Wzh7rfRHtBuNNi41JtGCA
+
