@@ -1,0 +1,74 @@
+
+@use '../../../styles/variables' as *;
+
+.session-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  width: 100%;
+  max-width: 250px;
+  min-height: 100px;
+  padding: 10px 16px;
+
+  background: $color-white-005;
+  border: 1px solid $color-gray-2;
+  border-radius: 10px;
+
+  transition:
+          border-color 0.2s ease,
+          background-color 0.2s ease,
+          transform 0.2s ease;
+
+  &:hover {
+    border-color: $color-green;
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  // Верхняя часть карточки
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &__price {
+    color: $color-gray;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  &__hall {
+    color: $color-green;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  // Время сеанса
+  &__schedule {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__start {
+    color: $color-white;
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  &__arrow {
+    width: 30px;
+    height: 12px;
+    flex-shrink: 0;
+    color: $color-gray;
+  }
+
+  &__end {
+    color: $color-gray;
+    font-size: 17px;
+    font-weight: 400;
+  }
+}

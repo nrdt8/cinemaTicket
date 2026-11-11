@@ -29,8 +29,6 @@ const movies = async (req, res) => {
 
 // films that have sessions
 
-// ...
-
 module.exports = {
     movies
 }
