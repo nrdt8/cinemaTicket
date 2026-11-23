@@ -7,31 +7,31 @@ const register = async (req, res) => {
 
     if (typeof first_name !== 'string' || typeof last_name !== 'string' || typeof login !== 'string' || typeof password !== 'string') {
         return res.status(400).json({
-            message: 'All fields must be strings'
+            error: "INVALID_FIELD_TYPE"
         });
     }
 
     if (!first_name.trim() || !last_name.trim() || !login.trim() || !password.trim()) {
         return res.status(400).json({
-            message: 'All fields are required'
+            error: "FIELDS_REQUIRED"
         });
     }
 
     if (!/^[a-zA-Z0-9_-]{3,20}$/.test(login)) {
         return res.status(400).json({
-            message: 'Login must be 3–20 characters long and contain only English letters, digits, _ or -'
+            error: "INVALID_LOGIN"
         });
     }
 
     if (!/^[\p{L}'-]{2,50}$/u.test(first_name.trim()) || !/^[\p{L}'-]{2,50}$/u.test(last_name.trim())) {
         return res.status(400).json({
-            message: 'Names must contain 2–50 letters. Hyphens and apostrophes are allowed.'
+            error: "INVALID_NAME"
         });
     }
 
     if (!/^[\x21-\x7E]{8,72}$/.test(password)) {
         return res.status(400).json({
-            message: 'Password must be 8–72 characters long and contain only English letters, numbers, and special characters.'
+            error: "INVALID_PASSWORD"
         });
     }
 
@@ -42,10 +42,10 @@ const register = async (req, res) => {
         )
 
         if (checkLogin.rows.length > 0){
-            return res.status(409).send({error: 'This login is already taken'});
+            return res.status(409).send({error: "LOGIN_ALREADY_EXISTS"});
         }
 
-        const password_hash = await bcrypt.hashSync(password, 12);
+        const password_hash = await bcrypt.hash(password, 12);
 
         const insertUsers = await pool.query(
             `INSERT INTO users (first_name, last_name, login, password_hash, role_id)
@@ -61,7 +61,7 @@ const register = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({
-            error: "Database connection error"
+            error: "INTERNAL_SERVER_ERROR"
         })
     }
 };
@@ -70,12 +70,14 @@ const login = async (req, res) => {
     const { login, password } = req.body;
 
     if (typeof login !== 'string' || typeof password !== 'string') {
-        return res.status(400).json({message: 'All fields must be strings'});
+        return res.status(400).json({
+            error: "INVALID_FIELD_TYPE"
+        });
     }
 
     if (!login.trim() || !password.trim()) {
         return res.status(400).json({
-            message: 'All fields are required'
+            error: "FIELDS_REQUIRED"
         });
     }
 
@@ -83,36 +85,39 @@ const login = async (req, res) => {
         const checkLogin = await pool.query(
             "SELECT * FROM users WHERE login = $1",
             [login]
-        )
+        );
 
-        if (checkLogin.rows.length === 0){
-            return res.status(400).send({
-                message: 'Login not found'
-            })
+        if (checkLogin.rows.length === 0) {
+            return res.status(401).json({
+                error: "INVALID_CREDENTIALS"
+            });
         }
 
-        const isPasswordValid = await bcrypt.compare(password, checkLogin.rows[0].password_hash);
+        const user = checkLogin.rows[0];
+
+        const isPasswordValid = await bcrypt.compare(
+            password,
+            user.password_hash
+        );
 
         if (!isPasswordValid) {
-            return res.status(400).send({
-                message: 'Passwords do not match'
-            })
+            return res.status(401).json({
+                error: "INVALID_CREDENTIALS"
+            });
         }
 
         const token = jwt.sign(
             {
-                id: checkLogin.rows[0].id,
-                role_id: checkLogin.rows[0].role_id
+                id: user.id,
+                role_id: user.role_id
             },
             process.env.JWT_SECRET,
             {
                 expiresIn: '30d'
             }
-        )
+        );
 
-        const user = checkLogin.rows[0]
-
-        return res.status(200).send({
+        return res.status(200).json({
             status: 200,
             data: {
                 id: user.id,
@@ -123,23 +128,24 @@ const login = async (req, res) => {
                 created_at: user.created_at
             },
             token: token
-        })
-
+        });
 
     } catch (error) {
+        console.error(error);
+
         return res.status(500).json({
-            error: "Database connection error"
-        })
+            error: "INTERNAL_SERVER_ERROR"
+        });
     }
-}
+};
 
 const authMiddleware = (req, res, next) => {
     const authorization = req.headers.authorization;
 
     if (!authorization || !authorization.startsWith('Bearer ')) {
-        return res.status(401).send({
-            message: 'Invalid authorization header'
-        })
+        return res.status(401).json({
+            error: "INVALID_AUTHORIZATION_HEADER"
+        });
     }
 
     const token = authorization.split(' ')[1];
@@ -148,47 +154,46 @@ const authMiddleware = (req, res, next) => {
         const decoded = jwt.verify(
             token,
             process.env.JWT_SECRET
-        )
+        );
 
-        req.user = decoded.id
+        req.user = decoded.id;
 
-        next()
+        next();
+
     } catch (error) {
-        return res.status(500).json({
-            error: "Database connection error"
-        })
+        return res.status(401).json({
+            error: "INVALID_TOKEN"
+        });
     }
-}
+};
 
 const profile = async (req, res) => {
     try {
-        if (!process.env.JWT_SECRET) {
-            return res.status(400).send({
-                message: 'jwt secret is required'
-            })
-        }
-
         const selectProfile = await pool.query(
-            `SELECT id, first_name, last_name, login, role_id, created_at FROM users WHERE id = $1`,
+            `SELECT id, first_name, last_name, login, role_id, created_at
+             FROM users WHERE id = $1`,
             [req.user]
-        )
+        );
 
-        if (selectProfile.rows.length === 0){
-            return res.status(400).send({
-                message: 'Profile not found'
-            })
+        if (selectProfile.rows.length === 0) {
+            return res.status(404).json({
+                error: "USER_NOT_FOUND"
+            });
         }
 
-        res.status(200).send({
+        return res.status(200).json({
             status: 200,
             data: selectProfile.rows[0]
-        })
+        });
+
     } catch (error) {
+        console.error(error);
+
         return res.status(500).json({
-            error: "Database connection error"
-        })
+            error: "INTERNAL_SERVER_ERROR"
+        });
     }
-}
+};
 
 module.exports = {
     register, login, authMiddleware, profile
