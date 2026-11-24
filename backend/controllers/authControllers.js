@@ -37,7 +37,7 @@ const register = async (req, res) => {
 
     try {
         const checkLogin = await pool.query(
-            "SELECT * FROM users WHERE login = $1",
+            "SELECT * FROM users WHERE Login = $1",
             [login]
         )
 
@@ -83,7 +83,7 @@ const login = async (req, res) => {
 
     try {
         const checkLogin = await pool.query(
-            "SELECT * FROM users WHERE login = $1",
+            "SELECT * FROM users WHERE Login = $1",
             [login]
         );
 
