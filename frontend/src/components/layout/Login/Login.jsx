@@ -1,6 +1,6 @@
 import {useState} from "react";
-import Input from "../../ui/Input/Input.jsx";
-import Button from "../../ui/Button/Button.jsx";
+import AuthInput from "../../ui/inputs/AuthInput/AuthInput.jsx";
+import AuthButton from "../../ui/buttons/AuthButton/AuthButton.jsx";
 
 const Login = () => {
 
@@ -58,26 +58,26 @@ const Login = () => {
     return (
         <form onSubmit={handleSubmit}>
             <span>Логин</span>
-            <Input
+            <AuthInput
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
                 name="login"
                 type="text"
                 placeholder="Введите логин"
-            ></Input>
+            ></AuthInput>
 
             <span>Пароль</span>
-            <Input
+            <AuthInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 name="password"
                 type="password"
                 placeholder="Введите пароль"
-            ></Input>
+            ></AuthInput>
 
             <label>{message}</label>
 
-            <Button type="submit">Вход</Button>
+            <AuthButton type="submit">Вход</AuthButton>
         </form>
     )
 }

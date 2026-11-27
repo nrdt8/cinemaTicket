@@ -1,57 +1,17 @@
-.session-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 250px;
-  min-height: 100px;
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #6E6E6E;
-  border-radius: 10px;
-  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
-}
-.session-card:hover {
-  border-color: #529403;
-  background-color: rgba(255, 255, 255, 0.04);
-}
-.session-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.session-card__price {
-  color: #9298A5;
-  font-size: 15px;
-  font-weight: 500;
-}
-.session-card__hall {
-  color: #529403;
-  font-size: 14px;
-  font-weight: 600;
-}
-.session-card__schedule {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.session-card__start {
-  color: #FFFFFF;
-  font-size: 25px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-}
-.session-card__arrow {
-  width: 30px;
-  height: 12px;
-  flex-shrink: 0;
-  color: #9298A5;
-}
-.session-card__end {
-  color: #9298A5;
-  font-size: 17px;
-  font-weight: 400;
-}
+/* Error: Undefined variable.
+ *    ,
+ * 14 |   background: $color-white-005;
+ *    |               ^^^^^^^^^^^^^^^^
+ *    '
+ *   SessionCard.scss 14:15  root stylesheet */
 
-/*# sourceMappingURL=SessionCard.css.map */
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Undefined variable.\a    \2577 \a 14 \2502    background: $color-white-005;\d\a    \2502                ^^^^^^^^^^^^^^^^\a    \2575 \a   SessionCard.scss 14:15  root stylesheet";
+}

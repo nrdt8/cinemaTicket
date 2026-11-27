@@ -1,0 +1,93 @@
+.auth-input {
+  width: 100%;
+}
+.auth-input__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  background-color: #161F30;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.auth-input__field:hover {
+  background-color: #192438;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.auth-input__field:focus-within {
+  background-color: #192438;
+  border-color: #2684FF;
+  box-shadow: 0 0 0 3px rgba(38, 132, 255, 0.18);
+}
+.auth-input__field--error {
+  border-color: #F87171;
+}
+.auth-input__left-icon {
+  position: absolute;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7C8B9E;
+  pointer-events: none;
+}
+.auth-input__left-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.auth-input__control {
+  width: 100%;
+  height: 100%;
+  padding: 0 16px 0 44px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #F8FAFC;
+  font-family: inherit;
+  font-size: 14px;
+}
+.auth-input__control::placeholder {
+  color: #7C8B9E;
+}
+.auth-input__control:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.auth-input:has(.auth-input__toggle) .auth-input__control {
+  padding-right: 44px;
+}
+.auth-input__control:-webkit-autofill, .auth-input__control:-webkit-autofill:hover, .auth-input__control:-webkit-autofill:focus {
+  -webkit-text-fill-color: #F8FAFC;
+  -webkit-box-shadow: 0 0 0 1000px #161F30 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+.auth-input__toggle {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  color: #7C8B9E;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.auth-input__toggle:hover {
+  color: #E2E8F0;
+}
+.auth-input__toggle svg {
+  width: 18px;
+  height: 18px;
+}
+.auth-input__error {
+  margin-top: 6px;
+  padding-left: 4px;
+  color: #F87171;
+  font-size: 12.5px;
+}
+
+/*# sourceMappingURL=AuthInput.css.map */

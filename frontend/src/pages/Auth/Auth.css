@@ -1,0 +1,88 @@
+.global-pageBG {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  background-color: #051932;
+}
+
+.global-cardBG {
+  background: linear-gradient(180deg, rgba(16, 23, 36, 0.88) 0%, rgba(12, 18, 29, 0.94) 100%);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 28px 65px -12px rgba(0, 0, 0, 0.78), 0 0 40px -10px rgba(38, 132, 255, 0.14), inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
+  position: absolute;
+  width: 100px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 25px;
+}
+
+.auth-card {
+  width: 432px;
+  padding: 2.25rem;
+}
+.auth-card__logo {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  color: #fff;
+}
+.auth-card__description {
+  font-size: 14px;
+  text-align: center;
+  margin-top: 0.375rem;
+  margin-bottom: 1.75rem;
+  color: #8E9BAE;
+}
+.auth-card__inputs {
+  margin: 0.7rem 0;
+}
+.auth-card__buttons {
+  margin-top: 0.75rem;
+}
+
+.auth-card__tab {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  padding: 4px;
+  background-color: #131B29;
+  border-radius: 25px;
+}
+.auth-card__tabBtn {
+  position: relative;
+  z-index: 2;
+  width: 50%;
+  height: 100%;
+  background: transparent;
+  border: none;
+}
+.auth-card__tabIndicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background-color: #006dff;
+  border-radius: 25px;
+  transition-duration: 0.2s;
+  transform: translateX(100%);
+}
+
+.auth-card__tab .auth-card__tabIndicator {
+  transform: translateX(100%);
+}
+.auth-card__tab:has(.auth-card__tabLogin.hidden) .auth-card__tabIndicator {
+  transform: translateX(100%);
+}
+.auth-card__tab:has(.auth-card__tabRegister.hidden) .auth-card__tabIndicator {
+  transform: translateX(0%);
+}
+
+/*# sourceMappingURL=Auth.css.map */

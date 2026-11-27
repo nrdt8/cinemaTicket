@@ -1,22 +1,35 @@
-import "./styles/main.scss"
-import Register from "./components/layout/Register/Register.jsx";
-import Login from "./components/layout/Login/Login.jsx";
-import Profile from "./components/layout/Profile/Profile.jsx";
-import Catalog from "./components/layout/Catalog/Catalog.jsx";
+import { Routes, Route } from "react-router-dom";
 
+import "./styles/main.scss";
+import Catalog from "./pages/Catalog/Catalog.jsx";
+import Auth from "./pages/Auth/Auth.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 function App() {
-
-
     return (
-        <>
-            <Register></Register>
-            <Login></Login>
-            <Profile></Profile>
+        <Routes>
+            <Route
+                path="/"
+                element={
+                    <ProtectedRoute>
+                        <Catalog />
+                    </ProtectedRoute>
+                }
+            />
 
-            <Catalog></Catalog>
-        </>
-  )
+            <Route
+                path="/catalog"
+                element={
+                    <ProtectedRoute>
+                        <Catalog />
+                    </ProtectedRoute>
+                }
+            />
+
+
+            <Route path="/auth" element={<Auth />} />
+        </Routes>
+    );
 }
 
-export default App
+export default App;

@@ -1,6 +1,6 @@
 import {useState} from "react";
-import Input from "../../ui/Input/Input.jsx";
-import Button from "../../ui/Button/Button.jsx";
+import AuthInput from "../../ui/inputs/AuthInput/AuthInput.jsx";
+import AuthButton from "../../ui/buttons/AuthButton/AuthButton.jsx";
 
 
 const Register = () => {
@@ -61,44 +61,44 @@ const Register = () => {
     return (
         <form onSubmit={handleSubmit}>
             <span>Имя</span>
-            <Input
+            <AuthInput
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 name="firstName"
                 type="text"
                 placeholder="Введите имя"
-            ></Input>
+            ></AuthInput>
 
             <span>Фамилия</span>
-            <Input
+            <AuthInput
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 name="lastName"
                 type="text"
                 placeholder="Введите фамилию"
-            ></Input>
+            ></AuthInput>
 
             <span>Логин</span>
-            <Input
+            <AuthInput
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
                 name="login"
                 type="text"
                 placeholder="Введите логин"
-            ></Input>
+            ></AuthInput>
 
             <span>Пароль</span>
-            <Input
+            <AuthInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 name="password"
                 type="password"
                 placeholder="Введите пароль"
-            ></Input>
+            ></AuthInput>
 
             <label>{message}</label>
 
-            <Button type="submit">Регистрация</Button>
+            <AuthButton type="submit">Регистрация</AuthButton>
 
         </form>
     )
